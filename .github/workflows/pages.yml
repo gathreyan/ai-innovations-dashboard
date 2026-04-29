@@ -91,7 +91,8 @@ jobs:
           # Create an orphan gh-pages branch with only the dashboard HTML
           # (keeps the branch clean — no Python scripts or workflow files exposed)
           git checkout --orphan gh-pages-deploy
-          git reset --quiet HEAD
+          # On an orphan branch there is no HEAD, so use git rm to clear the index
+          git rm -rf --cached . --quiet
 
           # Stage only the files that should be publicly visible
           git add ai-innovations-dashboard.html
