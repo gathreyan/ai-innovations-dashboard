@@ -244,6 +244,8 @@
 <!-- ═══════════ CARD GRID ═══════════ -->
 <div class="grid" id="card-grid">
 
+  <!-- ── NEW CARDS INJECTED BELOW ── -->
+
   <!-- ── CARD 1 ── Writer Allocation Dashboard -->
   <div class="card" data-tags="claude dashboard productivity" data-text="writer allocation spreadsheet dashboard github pages claude code lauren beller capacity">
     <div class="card-accent acc-claude"></div>
@@ -1134,35 +1136,23 @@
   }
 
   // ── Refresh button ──
-  // The button triggers Claude Code to re-read Slack and regenerate the file.
-  // While that runs, it shows an animated spinner and a banner message.
+  // Hard-reloads the page, bypassing cache, so the latest GitHub Pages deploy is shown.
   function triggerRefresh() {
     const btn = document.getElementById('refresh-btn');
     const banner = document.getElementById('update-banner');
     const bannerText = document.getElementById('update-banner-text');
 
-    // Spin the icon
     btn.classList.add('spinning');
     btn.disabled = true;
 
-    // Show info banner
     banner.style.display = 'flex';
     bannerText.innerHTML =
-      '⏳ <strong>Refresh triggered.</strong> ' +
-      'To pull the latest posts, ask Claude Code: ' +
-      '<em>"Refresh the AI innovations dashboard from the Slack channel"</em> — ' +
-      'then re-open this file. The page will reload automatically if served via GitHub Pages Actions.';
+      '⏳ <strong>Checking for the latest content…</strong> Reloading page now.';
 
-    // After 3 seconds stop spinning and stamp the time
+    // Small delay so the user sees the spinner, then hard-reload bypassing cache
     setTimeout(() => {
-      btn.classList.remove('spinning');
-      btn.disabled = false;
-      stampRefreshDate(null);  // stamp right now
-
-      bannerText.innerHTML =
-        '✅ <strong>Timestamp updated.</strong> ' +
-        'Run Claude Code to fetch new Slack posts and push to GitHub Pages for a full content refresh.';
-    }, 3000);
+      window.location.reload(true);
+    }, 800);
   }
 
   // Init
