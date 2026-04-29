@@ -20,7 +20,7 @@ set -euo pipefail
 # ── Config ────────────────────────────────────────────────────────────────
 GITHUB_REPO="https://github.com/gathreyan/ai-innovations-dashboard.git"
 SOMA_OWNER="gathreyan"
-SOMA_REPO="ai-innovations-dashboard"
+SOMA_REPO="AI-Innovation-Dashboard"
 SOMA_HOST="git.soma.salesforce.com"
 LOG="$HOME/Library/Logs/ai-dashboard-sync.log"
 WORK_DIR="$HOME/.cache/ai-dashboard-sync"
@@ -28,13 +28,18 @@ LAUNCHAGENT_LABEL="com.gathreyan.ai-dashboard-sync"
 LAUNCHAGENT_PLIST="$HOME/Library/LaunchAgents/${LAUNCHAGENT_LABEL}.plist"
 
 # ── Load PAT ──────────────────────────────────────────────────────────────
+# Preference order: env var → ~/.soma_token file → gh CLI keyring token
 if [[ -n "${SOMA_TOKEN:-}" ]]; then
   TOKEN="$SOMA_TOKEN"
 elif [[ -f "$HOME/.soma_token" ]]; then
   TOKEN="$(cat "$HOME/.soma_token")"
-else
-  echo "ERROR: No SOMA_TOKEN env var and no ~/.soma_token file found." >&2
-  echo "Create it with:  echo 'YOUR_PAT' > ~/.soma_token && chmod 600 ~/.soma_token" >&2
+elif command -v gh &>/dev/null; then
+  TOKEN="$(gh auth token --hostname git.soma.salesforce.com 2>/dev/null || true)"
+fi
+
+if [[ -z "${TOKEN:-}" ]]; then
+  echo "ERROR: Could not find a git.soma token." >&2
+  echo "Run: gh auth login --hostname git.soma.salesforce.com --git-protocol https" >&2
   exit 1
 fi
 
