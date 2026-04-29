@@ -61,7 +61,7 @@ jobs:
             git push origin main
           fi
 
-      # 5. Deploy to GitHub Pages
+      # 5. Deploy to GitHub Pages (github.com)
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
 
@@ -73,3 +73,35 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # 6. Mirror to git.soma.salesforce.com via gh-pages branch
+      - name: Push to git.soma gh-pages branch
+        env:
+          SOMA_TOKEN:    ${{ secrets.SOMA_TOKEN }}
+          SOMA_USERNAME: ${{ secrets.SOMA_USERNAME }}
+        run: |
+          # Configure git identity
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add git.soma as a second remote (credentials embedded in URL)
+          git remote add soma \
+            "https://${SOMA_USERNAME}:${SOMA_TOKEN}@git.soma.salesforce.com/${SOMA_USERNAME}/ai-innovations-dashboard.git"
+
+          # Create an orphan gh-pages branch with only the dashboard HTML
+          # (keeps the branch clean — no Python scripts or workflow files exposed)
+          git checkout --orphan gh-pages-deploy
+          git reset --quiet HEAD
+
+          # Stage only the files that should be publicly visible
+          git add ai-innovations-dashboard.html
+
+          git commit -m "chore: sync dashboard $(date -u '+%Y-%m-%d %H:%M UTC')"
+
+          # Force-push to gh-pages on git.soma
+          git push soma gh-pages-deploy:gh-pages --force
+
+          echo "✅ Synced to git.soma gh-pages branch."
+
+          # Return to main for any subsequent steps
+          git checkout main
