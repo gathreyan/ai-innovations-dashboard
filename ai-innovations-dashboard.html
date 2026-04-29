@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Innovations Dashboard — #tech-coo-managers-ai-adoption</title>
+  <style>
+    :root {
+      --blue:    #0070d2;
+      --blue-dk: #005fb2;
+      --teal:    #04844b;
+      --bg:      #f4f6f9;
+      --card-bg: #ffffff;
+      --border:  #dde0e7;
+      --text:    #16325c;
+      --muted:   #5a6a7e;
+      --tag-bg:  #e8f0fe;
+      --tag-c:   #0070d2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Salesforce Sans", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #032d60 0%, #0070d2 100%);
+      color: #fff;
+      padding: 28px 40px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    header h1 { font-size: 1.7rem; font-weight: 700; line-height: 1.2; }
+    header .meta { font-size: 0.85rem; opacity: .8; margin-top: 4px; }
+    header .channel-badge {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px; padding: 6px 16px;
+      font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .slack-icon { width: 18px; height: 18px; }
+
+    /* ── CONTROLS ── */
+    .controls {
+      padding: 18px 40px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    }
+    .controls input[type=search] {
+      flex: 1; min-width: 220px;
+      padding: 9px 14px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: .9rem; color: var(--text);
+      outline: none; transition: border .2s;
+    }
+    .controls input[type=search]:focus { border-color: var(--blue); }
+    .filter-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 7px 16px;
+      border: 1px solid var(--border); border-radius: 20px;
+      background: #fff; color: var(--muted);
+      cursor: pointer; font-size: .82rem; font-weight: 600;
+      transition: all .2s;
+    }
+    .filter-btn:hover,
+    .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .count-badge {
+      margin-left: auto;
+      font-size: .82rem; color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 22px;
+      padding: 28px 40px 48px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: box-shadow .2s, transform .15s;
+      position: relative;
+    }
+    .card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,.12);
+      transform: translateY(-2px);
+    }
+    .card-accent { height: 5px; width: 100%; }
+    .card-body { padding: 20px 22px 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .card-title { font-size: 1.0rem; font-weight: 700; color: var(--text); line-height: 1.35; flex: 1; }
+    .card-emoji { font-size: 1.5rem; flex-shrink: 0; }
+    .card-author {
+      font-size: .78rem; color: var(--muted);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .card-author .avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--blue); color: #fff;
+      font-size: .65rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-desc {
+      font-size: .875rem; color: var(--muted); line-height: 1.55;
+      flex: 1;
+    }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .tag {
+      background: var(--tag-bg); color: var(--tag-c);
+      border-radius: 12px; padding: 3px 10px;
+      font-size: .73rem; font-weight: 600;
+    }
+    .card-footer {
+      padding: 12px 22px 16px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+    }
+    .card-date { font-size: .75rem; color: var(--muted); }
+    .card-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px;
+      background: var(--blue); color: #fff !important;
+      border-radius: 6px; text-decoration: none;
+      font-size: .8rem; font-weight: 600;
+      transition: background .2s;
+    }
+    .btn-link:hover { background: var(--blue-dk); }
+    .btn-link.secondary {
+      background: #fff; color: var(--blue) !important;
+      border: 1px solid var(--blue);
+    }
+    .btn-link.secondary:hover { background: var(--tag-bg); }
+    .reactions { font-size: .75rem; color: var(--muted); }
+
+    /* ── HIDDEN ── */
+    .card.hidden { display: none; }
+
+    /* ── EMPTY STATE ── */
+    #empty-state {
+      display: none; grid-column: 1/-1;
+      text-align: center; padding: 60px 0; color: var(--muted);
+    }
+    #empty-state svg { width: 64px; opacity: .3; margin-bottom: 16px; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 18px;
+      font-size: .78rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: #fff;
+    }
+
+    /* ── ACCENT COLOURS per tool ── */
+    .acc-claude   { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+    .acc-gemini   { background: linear-gradient(90deg, #1a73e8, #4285f4); }
+    .acc-slackbot { background: linear-gradient(90deg, #4a154b, #7c3085); }
+    .acc-cursor   { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .acc-notebook { background: linear-gradient(90deg, #10b981, #059669); }
+    .acc-google   { background: linear-gradient(90deg, #ea4335, #fbbc05); }
+    .acc-multi    { background: linear-gradient(90deg, #0070d2, #04844b); }
+
+    /* ── REFRESH BUTTON ── */
+    .refresh-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 20px;
+      background: rgba(255,255,255,.15);
+      border: 1.5px solid rgba(255,255,255,.5);
+      border-radius: 8px;
+      color: #fff; font-size: .88rem; font-weight: 700;
+      cursor: pointer; transition: background .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .refresh-btn:hover { background: rgba(255,255,255,.28); }
+    .refresh-btn:active { transform: scale(.96); }
+    .refresh-btn svg { width: 16px; height: 16px; transition: transform .6s; flex-shrink: 0; }
+    .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LAST-UPDATED BANNER ── */
+    .update-banner {
+      background: #e8f4fd; border-bottom: 1px solid #b3d9f7;
+      padding: 9px 40px; font-size: .82rem; color: #0070d2;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .update-banner strong { font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header>
+  <div>
+    <h1>🤖 AI Innovations Dashboard</h1>
+    <div class="meta">Sourced from Slack · <strong id="solution-count">24</strong> innovations catalogued · Last refreshed: <strong id="last-refresh"></strong></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <button class="refresh-btn" id="refresh-btn" onclick="triggerRefresh()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+      </svg>
+      Refresh from Slack
+    </button>
+    <div class="channel-badge">
+      <svg class="slack-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 15a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2h2v2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-5zm2-9a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2H9zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5zm9 2a2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2V9zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5zm-2 9a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2h2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-5z" fill="white"/>
+      </svg>
+      #tech-coo-managers-ai-adoption
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ UPDATE BANNER ═══════════ -->
+<div class="update-banner" id="update-banner" style="display:none;">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <span id="update-banner-text"></span>
+</div>
+
+<!-- ═══════════ CONTROLS ═══════════ -->
+<div class="controls">
+  <input type="search" id="search-input" placeholder="🔍  Search solutions, tools, authors…" oninput="filterCards()" />
+  <div class="filter-btns">
+    <button class="filter-btn active" data-filter="all"    onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn"        data-filter="claude" onclick="setFilter('claude',this)">Claude / Cursor</button>
+    <button class="filter-btn"        data-filter="gemini" onclick="setFilter('gemini',this)">Gemini</button>
+    <button class="filter-btn"        data-filter="slackbot" onclick="setFilter('slackbot',this)">Slackbot</button>
+    <button class="filter-btn"        data-filter="notebook" onclick="setFilter('notebook',this)">NotebookLM</button>
+    <button class="filter-btn"        data-filter="dashboard" onclick="setFilter('dashboard',this)">Dashboards</button>
+    <button class="filter-btn"        data-filter="productivity" onclick="setFilter('productivity',this)">Productivity</button>
+  </div>
+  <span class="count-badge" id="visible-count"></span>
+</div>
+
+<!-- ═══════════ CARD GRID ═══════════ -->
+<div class="grid" id="card-grid">
+
+  <!-- ── CARD 1 ── Writer Allocation Dashboard -->
+  <div class="card" data-tags="claude dashboard productivity" data-text="writer allocation spreadsheet dashboard github pages claude code lauren beller capacity">
+    <div class="card-accent acc-claude"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📊 Writer Allocation Dashboard: 12 Sheets → 1 Source of Truth</div>
+        <div class="card-emoji">🎯</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">LB</div>
+        Lauren Beller · Apps &amp; Industries Cloud
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Staffing decisions required checking 12 different Google Sheets across ~75 writers across multiple clouds.<br><br>
+        <strong>Solution:</strong> Used Claude Code to compile all sheets into a single, actionable capacity dashboard deployed on GitHub Pages. Answers "who has capacity?" in seconds instead of hours.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Claude Code</span>
+        <span class="tag">GitHub Pages</span>
+        <span class="tag">Dashboard</span>
+        <span class="tag">Capacity Planning</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 29, 2026</div>
+        <div class="reactions">🎉×1 👏×4 😎×1 ⭐×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://git.soma.salesforce.com/pages/lbeller/allocation-dashboard/" target="_blank" rel="noopener">View Dashboard ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1777412676737279" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 2 ── Kanban Board (MIYO) -->
+  <div class="card" data-tags="dashboard productivity cursor" data-text="kanban gus board miyo service cloud vaishali kannan filters sorting">
+    <div class="card-accent acc-cursor"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📋 Custom Kanban Board for Service Cloud Writers</div>
+        <div class="card-emoji">🗂️</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">VK</div>
+        Vaishali Kannan · Service Cloud
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Standard GUS Kanban boards were too limiting — one-team-only, no advanced sorting, no custom filters.<br><br>
+        <strong>Solution:</strong> Vibe-coded a custom Kanban board using MIYO with multi-team tracking, sort by "Last Updated / Age / Priority", one-click filter for stories without story points, and quick title search. Forkable in under 5 minutes.
+      </div>
+      <div class="card-tags">
+        <span class="tag">MIYO (GUS)</span>
+        <span class="tag">Kanban</span>
+        <span class="tag">Vibe-Coding</span>
+        <span class="tag">Dashboard</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 28, 2026</div>
+        <div class="reactions">👏×4 👍×2 ❤️×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://gus-apps.internal.salesforce.com/applets/afcc-pod-kanban-board/" target="_blank" rel="noopener">Open Kanban ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1777359725793059" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 3 ── Interview Feedback Writer -->
+  <div class="card" data-tags="slackbot productivity" data-text="interview feedback workday candidate evaluation slackbot avishek gupta hiring">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📝 Candidate Evaluation Feedback Writer (Slackbot Skill)</div>
+        <div class="card-emoji">🤝</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">AG</div>
+        Avishek Gupta · CX Apps &amp; Industries Trailhead
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> High-volume hiring surge — the team was spending significant time writing polished Workday evaluation feedback.<br><br>
+        <strong>Solution:</strong> A Slackbot skill that transforms rough interview notes into professional summaries with targeted competency breakdowns (Champion Customer Success, Technical Writing). Ready to use instantly.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">Hiring</span>
+        <span class="tag">Feedback</span>
+        <span class="tag">Productivity</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 28, 2026</div>
+        <div class="reactions">👏×6 👍×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://salesforce.enterprise.slack.com/docs/TF2ADGBJ9/F0AUV420VC3" target="_blank" rel="noopener">Open Skill ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1777344199760599" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 4 ── Live Release Dashboard (Cursor + Claude) -->
+  <div class="card" data-tags="claude cursor dashboard productivity" data-text="release dashboard soql github pages richa kulkarni rev cloud cx cursor claude 4.6">
+    <div class="card-accent acc-cursor"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🚀 Live Release Dashboard — 10 Scrum Teams, 8 Products, Zero Manual Assembly</div>
+        <div class="card-emoji">📈</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">RK</div>
+        Richa Kulkarni · Rev Cloud CX
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> No single view combined release work, backlog health, bug trends, and content strategy for a 20+ person CX team spanning 40+ eng scrum teams across 8 products.<br><br>
+        <strong>Solution:</strong> Cursor Agent (Claude 4.6) built 13 SOQL queries, dynamically discovers all writers via GUS, and generates a self-contained HTML dashboard with 5 tabs, drill-downs, progress bars, bug priority matrix, and daily cron refresh. ~3h to build. Each refresh: ~10 seconds.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Cursor</span>
+        <span class="tag">Claude 4.6</span>
+        <span class="tag">SOQL</span>
+        <span class="tag">GitHub Pages</span>
+        <span class="tag">Daily Cron</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 21, 2026</div>
+        <div class="reactions">🏆×8 🙌×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://git.soma.salesforce.com/pages/richa-kulkarni/Rev-Cloud-CX/Release%20Dashboard/release_dashboard.html" target="_blank" rel="noopener">Explore Dashboard ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1776767342864739" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 5 ── GUS Release Epic Automation -->
+  <div class="card" data-tags="claude cursor productivity" data-text="gus epic release cursor agent richa kulkarni automation soql naming convention">
+    <div class="card-accent acc-cursor"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">⚙️ Automating GUS Release Epic Setup with Cursor Agent</div>
+        <div class="card-emoji">🔄</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">RK</div>
+        Richa Kulkarni · Rev Cloud CX
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> 8+ writers independently created release epics each cycle, causing duplicates, naming drift, and coordination Slack threads.<br><br>
+        <strong>Solution:</strong> Cursor Agent queried GUS naming conventions, checked for existing epics, looked up all required Salesforce IDs, and created 15 remaining epics in one pass with correct names, teams, builds, and dates. Generated a reusable script for future releases. Reduced ~2h combined writer effort to ~15 min.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Cursor</span>
+        <span class="tag">GUS Automation</span>
+        <span class="tag">Epics</span>
+        <span class="tag">Release Mgmt</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 20, 2026</div>
+        <div class="reactions">👍×4 👏×4 🔥×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1776671500543679" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 6 ── Mental Load / Meeting Synthesis -->
+  <div class="card" data-tags="gemini cursor productivity" data-text="meeting notes transcript gemini cursor gap analysis mental load catherine zheng friday">
+    <div class="card-accent acc-multi"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🧠 Reclaiming Mental Clarity: AI-Powered Meeting Gap Analysis</div>
+        <div class="card-emoji">🧩</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">CZ</div>
+        Catherine Zheng · Life Sciences CX
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Complex stakeholder meetings derail plans; by the time you have a moment to breathe, the nuance is a blur.<br><br>
+        <strong>Solution:</strong> Gemini captures the transcript live → Cursor ingests transcript + original talking points → gap analysis: what matched, what derailed, what the actual blockers are. Eliminates reconstructing a complex puzzle from memory while exhausted.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">Cursor</span>
+        <span class="tag">Meeting Notes</span>
+        <span class="tag">Gap Analysis</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 18, 2026</div>
+        <div class="reactions">🙌×7 ❤️×3 👍×3</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1776459980287829" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 7 ── Claude Code: GUS Report Categorizer -->
+  <div class="card" data-tags="claude productivity" data-text="claude code gus report categorize work items feature area markdown table catherine zheng life sciences">
+    <div class="card-accent acc-claude"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🗃️ GUS Work Item Auto-Categorizer (150+ WIs in 10 min)</div>
+        <div class="card-emoji">⚡</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">CZ</div>
+        Catherine Zheng · Life Sciences CX
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> PO requested a comparison of doc improvements vs. support requests — the only way to map them was manually reading 150+ work item descriptions.<br><br>
+        <strong>Solution:</strong> Claude Code pulled all WIs from a GUS report, categorized them against feature areas using subject/description analysis, and output a markdown table with counts and summaries. <strong>~94% time saved</strong> (2–3h → 10 min).
+      </div>
+      <div class="card-tags">
+        <span class="tag">Claude Code</span>
+        <span class="tag">GUS</span>
+        <span class="tag">Categorization</span>
+        <span class="tag">94% Time Saved</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Apr 3, 2026</div>
+        <div class="reactions">🏆×11 👏×8 💡×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1775236729427989" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 8 ── Manager Agent + Slackbot (Kelsey) -->
+  <div class="card" data-tags="slackbot productivity" data-text="manager agent quarterly check-in feedback canvas slackbot kelsey lambert basecamp">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📋 Streamlined Quarterly Check-In Feedback Collection</div>
+        <div class="card-emoji">✅</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">KL</div>
+        Kelsey Lambert · CX People Manager
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Manager Agent for collecting stakeholder feedback required cumbersome back-and-forth across multiple Slack windows and repeated copy/paste.<br><br>
+        <strong>Solution:</strong> Slackbot creates a consolidated Canvas organising direct reports and suggested reviewers (with duplicates bolded). Canvas displayed in split-view alongside Manager Agent, so all info is on one screen while requesting feedback — dramatically reducing context switching.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">Manager Agent</span>
+        <span class="tag">Canvas</span>
+        <span class="tag">Feedback</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Mar 28, 2026</div>
+        <div class="reactions">🙏×2 ❤️×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1774650829423889" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 9 ── People Manager Toolkit (Sohini Arya) -->
+  <div class="card" data-tags="slackbot productivity" data-text="people manager toolkit slackbot quarterly check-in annual appraisal sohini arya andy goin marketing cloud 30-40% time saving">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🧰 People Manager Toolkit: Check-ins &amp; Appraisals with Slackbot</div>
+        <div class="card-emoji">📊</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">SA</div>
+        Sohini Arya (shared by Andy Goin) · Marketing Cloud
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> Ready-to-use Slackbot prompts that automatically gather performance data, surface collaboration patterns, and structure meaningful feedback discussions. Early adopters report <strong>30–40% prep time saved per direct report</strong> with significantly improved feedback quality and depth — concrete examples instead of memory-based recalls.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">Performance Reviews</span>
+        <span class="tag">30–40% Time Saved</span>
+        <span class="tag">People Mgmt</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Mar 10, 2026</div>
+        <div class="reactions">🙌×2 🙏×1 🙌×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://salesforce.enterprise.slack.com/docs/T01G0063H29/F0ACNFSGL0J" target="_blank" rel="noopener">Open Toolkit ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1773092889779869" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 10 ── Google Vids for Video Production -->
+  <div class="card" data-tags="google productivity" data-text="google vids voiceover slide deck script video production tracey zeigler scaling fy27 262">
+    <div class="card-accent acc-google"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🎬 Scaling Video Production with Google Vids</div>
+        <div class="card-emoji">🎥</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">TZ</div>
+        Tracey Zeigler · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Creating multiple takes and separate versions of update videos for different audiences was extremely time-consuming.<br><br>
+        <strong>Solution:</strong> Write script in slide speaker notes → import to Google Vids → AI generates voiceover and timing. Copy deck for each audience, tweak script, re-import in seconds. Tips: iterate by editing script directly (audio regenerates instantly), manually trim timing after script changes, and rewrite words phonetically for correct pronunciation.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Google Vids</span>
+        <span class="tag">Video Automation</span>
+        <span class="tag">Voiceover AI</span>
+        <span class="tag">Communications</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jan 29, 2026</div>
+        <div class="reactions">👏×4 ✨×3 😎×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1769704216908899" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 11 ── Gemini for Slack Messages -->
+  <div class="card" data-tags="gemini productivity" data-text="gemini slack message writing professional format tracey zeigler brain dump bullet points bold">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">💬 Gemini-Polished Slack Communications</div>
+        <div class="card-emoji">✍️</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">TZ</div>
+        Tracey Zeigler · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Rushing to reply between back-to-back meetings leads to long, unstructured Slack messages.<br><br>
+        <strong>Solution:</strong> Brain-dump raw thoughts into Gemini with a simple prompt: <em>"Write a brief, professional Slack post based on this information."</em> Gemini automatically formats with bullet points, bold keywords, and adjusts tone for the audience (e.g., "for executives → keep it short"). Saves time while maintaining professionalism.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">Communication</span>
+        <span class="tag">Slack Writing</span>
+        <span class="tag">Productivity</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jan 29, 2026</div>
+        <div class="reactions">💖×3 👍×2 🙏×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1769703034530479" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 12 ── Slackbot + Org62 Support Cases -->
+  <div class="card" data-tags="slackbot productivity" data-text="slackbot org62 support cases tableau help docs feedback customer pain points ben prostor">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🔍 Org62 Support Case Analysis &amp; Doc Feedback via Slackbot</div>
+        <div class="card-emoji">📂</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">BP</div>
+        Ben Prostor · Tableau Content Experience
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> Slackbot's Org62 API integration lets you ask: <em>"Give me a recap of customer issues from org62 support cases related to this help URL — categorize pain points and cite case numbers."</em><br><br>
+        Surfaces cases that mention doc-specific feedback, links to case references, and categorizes customer pain points — perfect for prioritising doc improvements from real customer data.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">Org62</span>
+        <span class="tag">Support Cases</span>
+        <span class="tag">Content Strategy</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jan 23, 2026</div>
+        <div class="reactions">👍×1 🙏×2 ❤️×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1769115560946659" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 13 ── Slackbot + GUS Geo Distribution -->
+  <div class="card" data-tags="slackbot dashboard" data-text="slackbot gus scrum teams geo distribution joanne harvey percentage">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🌍 Scrum Team Geo Distribution via Slackbot + GUS</div>
+        <div class="card-emoji">📍</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">JH</div>
+        Joanne Harvey · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> A quick win using Slackbot to query GUS and instantly determine the percentage of scrum teams based in specific geographies — no manual counting or pivoting needed. Watch the demo video in the original Slack post.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">GUS</span>
+        <span class="tag">Data Analysis</span>
+        <span class="tag">Quick Win</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jan 21, 2026</div>
+        <div class="reactions">❤️×7 👏×8 📊×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1769019283180449" target="_blank" rel="noopener">Slack Post + Demo</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 14 ── NotebookLM V2MOM Draft -->
+  <div class="card" data-tags="notebook productivity" data-text="notebooklm v2mom draft starter sue warnke fy27 leadership presentations sources">
+    <div class="card-accent acc-notebook"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📒 Generate a V2MOM Starter Draft with NotebookLM</div>
+        <div class="card-emoji">🗺️</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">SW</div>
+        Sue Warnke · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Creating V2MOMs manually takes weeks or months; the blank-page problem is real.<br><br>
+        <strong>Solution:</strong> Ingest 25 sources (onsite materials, leadership presentations, FY26 V2MOM, research projects) into NotebookLM. Prompt: <em>"Using the FY26 V2MOM as a template, generate an FY27 starter draft based on all sources."</em> Produces a solid starting point in ~2 hours. Update by ingesting new V2MOMs as they become available.
+      </div>
+      <div class="card-tags">
+        <span class="tag">NotebookLM</span>
+        <span class="tag">V2MOM</span>
+        <span class="tag">Planning</span>
+        <span class="tag">Strategy</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Oct 8, 2025</div>
+        <div class="reactions">👀×1 🤖×2 😮×2 👍×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1759871082946559" target="_blank" rel="noopener">Slack Post + Demo Video</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 15 ── NotebookLM Quarterly Check-in Prep -->
+  <div class="card" data-tags="notebook productivity" data-text="notebooklm quarterly checkin prep v2mom slack performance summaries sue warnke hours to minutes">
+    <div class="card-accent acc-notebook"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📓 Quarterly Check-in Prep with NotebookLM</div>
+        <div class="card-emoji">🔖</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">SW</div>
+        Sue Warnke · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Quarterly check-ins required hours of compiling info from V2MOMs, Slack, Google Docs, and more.<br><br>
+        <strong>Solution:</strong> Create a Quarterly Check-in Notebook — upload team V2MOM, Slack performance summaries, and Employee Success guidelines → prompt for first draft. Further refine as needed. Dramatically reduces prep time for each team member.
+      </div>
+      <div class="card-tags">
+        <span class="tag">NotebookLM</span>
+        <span class="tag">Check-ins</span>
+        <span class="tag">Performance</span>
+        <span class="tag">Time Saver</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jul 29, 2025</div>
+        <div class="reactions">📓×1 🏆×4 👏×2 ⭐×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1753752698353089" target="_blank" rel="noopener">Slack Post + Demo Video</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 16 ── Gemini CX Promotion Announcement -->
+  <div class="card" data-tags="gemini productivity" data-text="gemini promotion announcement cx promo slides sue warnke template">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🎉 Gemini Prompt for CX Promotion Announcements</div>
+        <div class="card-emoji">📣</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">SW</div>
+        Sue Warnke · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> Upload your promo slides to Gemini, paste the prompt template (linked), add the team member's name and new role — and get a polished, professional promotion announcement. Works for any CX manager and likely other Tech COO functions too.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">Promotions</span>
+        <span class="tag">Communications</span>
+        <span class="tag">Prompt Template</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jul 29, 2025</div>
+        <div class="reactions">🙏×3 ✨×2 🤖×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://docs.google.com/document/d/1yivstflVbuNQEvecAqgF5V_tVU2P44Mun7vHz4Et3oA/edit?tab=t.0" target="_blank" rel="noopener">Prompt Template ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1753748591108099" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 17 ── Gemini for Meeting Notes (Meeta) -->
+  <div class="card" data-tags="gemini productivity" data-text="gemini meeting notes mulesoft product review transcript summary content experience meeta garg">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📝 AI-Powered Meeting Notes Tailored for Your Team (Gemini)</div>
+        <div class="card-emoji">🎙️</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">MG</div>
+        Meeta Garg · MuleSoft Content Experience
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> 4-hour product reviews produce huge volumes of information; manually extracting what matters for your team is slow.<br><br>
+        <strong>Solution:</strong> Attach meeting slides, Gemini transcript, notes + brief manual notes. Prompt Gemini to create a summary <em>specifically relevant to the CX team</em> — highlights, risks, new features, upcoming releases, PM names. Results: excellent targeted summaries with minimal effort.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">Meeting Notes</span>
+        <span class="tag">Summarization</span>
+        <span class="tag">MuleSoft</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jun 21, 2025</div>
+        <div class="reactions">✨×4 😎×1 👍×1 ❤️×2</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1750461386647199" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 18 ── V2MOM Monthly Status Summary (Ben) -->
+  <div class="card" data-tags="gemini productivity" data-text="v2mom monthly status google sheet prompt summarize accomplishments done ongoing blocked ben prostor">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📊 V2MOM Monthly Status Summary from Google Sheets</div>
+        <div class="card-emoji">📅</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">BP</div>
+        Ben Prostor · Tableau Content Experience
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> A reusable prompt for any V2MOM Google Sheet:<br><em>"Summarize the accomplishments in cells H5–H28. Organize by status in Column B under: Done, Ongoing, Upcoming, Blocked. Include any links."</em><br><br>Adjust cell ranges to match your template. Instantly generates a structured status update.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">V2MOM</span>
+        <span class="tag">Status Update</span>
+        <span class="tag">Prompt</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Jun 30, 2025</div>
+        <div class="reactions">🙏×2 🙌×1 ❤️×1 😎×3</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1751303628144499" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 19 ── Gemini in Chrome Tab Context -->
+  <div class="card" data-tags="gemini productivity" data-text="gemini chrome tab context aware dashboard capacity planning insights ben prostor">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🌐 Gemini in Chrome: Context-Aware Tab Analysis</div>
+        <div class="card-emoji">🔎</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">BP</div>
+        Ben Prostor · Tableau Content Experience
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> "Gemini in Chrome" reads whatever is in your active Chrome tab. Ask it questions about dashboards, spreadsheets, or any page without copy-pasting. Examples: <em>"What are the three most important takeaways from this tab?"</em> applied to a dashboard and a capacity planning sheet both yielded accurate, insightful results. Significantly reduces copy-paste churn.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">Chrome</span>
+        <span class="tag">Context-Aware</span>
+        <span class="tag">Analysis</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Nov 25, 2025</div>
+        <div class="reactions">😮×4 🙌×2 😮×2 🤯×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1764089324035399" target="_blank" rel="noopener">Slack Post + Screenshots</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 20 ── Slackbot: Assertiveness Feedback Examples -->
+  <div class="card" data-tags="slackbot productivity" data-text="slackbot feedback communication assertiveness examples manager direct report catherine zheng">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">💡 Finding Concrete Feedback Examples with Slackbot</div>
+        <div class="card-emoji">🗣️</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">CZ</div>
+        Catherine Zheng · Life Sciences CX
+      </div>
+      <div class="card-desc">
+        <strong>Problem:</strong> Giving high-quality SBI feedback requires specific examples — wading through thousands of Slack messages is impractical.<br><br>
+        <strong>Solution:</strong> Prompt: <em>"Find me 10 instances of messages from [person] that could have been more assertive."</em> Slackbot surfaces on-point examples AND suggests improved versions of each message. Saves hours of searching.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">Feedback</span>
+        <span class="tag">Communication</span>
+        <span class="tag">Manager Skill</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Nov 20, 2025</div>
+        <div class="reactions">✨×13 🙏×3 ❤️×4</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1763598772197999" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 21 ── Gemini SBI+A Feedback (Emily) -->
+  <div class="card" data-tags="gemini productivity" data-text="gemini sbi feedback model accountability emily wilska training performance improvement">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🎯 Refining SBI+A Feedback with Gemini</div>
+        <div class="card-emoji">⭐</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">EW</div>
+        Emily Wilska · CX People Manager
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> Gemini already knows the SBI+A model. Prompt: <em>"I need to give feedback using the SBI+A model. Please review what I've written and give me feedback on how I can improve it."</em><br><br>
+        Response structure: ✅ what your draft does well → 📈 specific improvements for each SBI+A component → 📝 a revised version. Results: dramatically stronger, more impactful feedback.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">SBI+A Feedback</span>
+        <span class="tag">Performance Mgmt</span>
+        <span class="tag">Prompt</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Sep 10, 2025</div>
+        <div class="reactions">🙌×2 ✨×5 🙌×2 ❤️×5</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1757449130413369" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 22 ── Slackbot Self Communication Review (Andrea) -->
+  <div class="card" data-tags="slackbot productivity" data-text="slackbot communication style feedback review andrea leszek self improvement tips">
+    <div class="card-accent acc-slackbot"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🪞 Slackbot Communication Style Self-Review</div>
+        <div class="card-emoji">💬</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">AL</div>
+        Andrea Leszek · CX Leadership
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> Prompt: <em>"Review my postings and provide feedback on my communication style and give tips on how I can be more effective."</em><br><br>
+        Surprisingly insightful, helpful, and honest results. Great for self-improvement without needing external review. Complimentary where warranted, constructive where needed.
+      </div>
+      <div class="card-tags">
+        <span class="tag">Slackbot</span>
+        <span class="tag">Communication</span>
+        <span class="tag">Self Review</span>
+        <span class="tag">Manager Skill</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">Sep 18, 2025</div>
+        <div class="reactions">👍×1 🧠×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1758150357661729" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 23 ── Gemini Promo Prompts (Liz Thomerson) -->
+  <div class="card" data-tags="gemini productivity" data-text="gemini promotion prompts business need accomplishments liz thomerson mulesoft writer promo season">
+    <div class="card-accent acc-gemini"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">🏆 Gemini Prompts for Promotion Packages</div>
+        <div class="card-emoji">📄</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">LT</div>
+        Liz Thomerson · MuleSoft CX
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> Three battle-tested Gemini prompts for promo season, applied to a collaboratively-built data document:<br>
+        1. Demonstrate skills at the next level with stakeholder feedback<br>
+        2. Write a concise business need for the promotion<br>
+        3. List accomplishments with impact on CX, customers, and Salesforce values
+      </div>
+      <div class="card-tags">
+        <span class="tag">Gemini</span>
+        <span class="tag">Promotions</span>
+        <span class="tag">Promo Season</span>
+        <span class="tag">Prompt Pack</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">May 30, 2025</div>
+        <div class="reactions">👍×1 🤩×3 📊×1 ❤️×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1748616308101319" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CARD 24 ── NotebookLM CX Knowledge Share (Evie / Liz) -->
+  <div class="card" data-tags="notebook productivity" data-text="notebooklm cx knowledge share valkyrie hunter liz thomerson 1on1 gemini notes stakeholders">
+    <div class="card-accent acc-notebook"></div>
+    <div class="card-body">
+      <div class="card-header">
+        <div class="card-title">📚 NotebookLM How-To &amp; CX Knowledge Share Guide</div>
+        <div class="card-emoji">📖</div>
+      </div>
+      <div class="card-author">
+        <div class="avatar">VH</div>
+        Valkyrie Hunter (shared by Liz Thomerson) · MuleSoft CX
+      </div>
+      <div class="card-desc">
+        <strong>Solution:</strong> A presentation covering how to get started with NotebookLM, including collating Gemini notes from 1:1s with your writing team and stakeholder touchpoint meetings. Liz Thomerson also created notebooks for ongoing meeting series. Excellent primer for managers new to NotebookLM.
+      </div>
+      <div class="card-tags">
+        <span class="tag">NotebookLM</span>
+        <span class="tag">How-To Guide</span>
+        <span class="tag">1:1s</span>
+        <span class="tag">Knowledge Mgmt</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>
+        <div class="card-date">May 30, 2025</div>
+        <div class="reactions">🏆×3 👍×1</div>
+      </div>
+      <div class="card-links">
+        <a class="btn-link" href="https://docs.google.com/presentation/d/1w-UCcX5th1b0Khccyonq9YhF7dIeqhoXT_v1SipOSlk/edit?usp=sharing" target="_blank" rel="noopener">View Presentation ↗</a>
+        <a class="btn-link secondary" href="https://salesforce-internal.slack.com/archives/C08U4HX466R/p1748617082922319" target="_blank" rel="noopener">Slack Post</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMPTY STATE ── -->
+  <div id="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <p style="font-size:1.1rem;font-weight:600;margin-bottom:6px;">No solutions found</p>
+    <p style="font-size:.85rem">Try a different search term or filter.</p>
+  </div>
+
+</div><!-- /grid -->
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  Dashboard auto-populated from <strong>#tech-coo-managers-ai-adoption</strong> ·
+  Refresh this file daily to stay current ·
+  Built with Claude Code
+</footer>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script>
+  // ── Stamp last refresh date from localStorage (persists across page loads) ──
+  const REFRESH_KEY = 'ai-dashboard-last-refresh';
+
+  function stampRefreshDate(dateStr) {
+    const d = dateStr ? new Date(dateStr) : new Date();
+    const label = d.toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+    document.getElementById('last-refresh').textContent = label;
+    localStorage.setItem(REFRESH_KEY, d.toISOString());
+  }
+
+  // Restore or set today on first load
+  const stored = localStorage.getItem(REFRESH_KEY);
+  stampRefreshDate(stored || null);
+
+  // ── Filter / Search ──
+  let activeFilter = 'all';
+
+  function setFilter(filter, btn) {
+    activeFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCards();
+  }
+
+  function filterCards() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      if (card.id === 'empty-state') return;
+      const tags  = (card.dataset.tags || '').toLowerCase();
+      const text  = (card.dataset.text || '').toLowerCase();
+      const inner = card.innerText.toLowerCase();
+
+      const matchFilter = activeFilter === 'all' || tags.includes(activeFilter);
+      const matchSearch = !query ||
+        inner.includes(query) || text.includes(query) || tags.includes(query);
+
+      const show = matchFilter && matchSearch;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+
+    document.getElementById('visible-count').textContent =
+      visible + ' solution' + (visible !== 1 ? 's' : '') + ' shown';
+    document.getElementById('empty-state').style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  // ── Refresh button ──
+  // The button triggers Claude Code to re-read Slack and regenerate the file.
+  // While that runs, it shows an animated spinner and a banner message.
+  function triggerRefresh() {
+    const btn = document.getElementById('refresh-btn');
+    const banner = document.getElementById('update-banner');
+    const bannerText = document.getElementById('update-banner-text');
+
+    // Spin the icon
+    btn.classList.add('spinning');
+    btn.disabled = true;
+
+    // Show info banner
+    banner.style.display = 'flex';
+    bannerText.innerHTML =
+      '⏳ <strong>Refresh triggered.</strong> ' +
+      'To pull the latest posts, ask Claude Code: ' +
+      '<em>"Refresh the AI innovations dashboard from the Slack channel"</em> — ' +
+      'then re-open this file. The page will reload automatically if served via GitHub Pages Actions.';
+
+    // After 3 seconds stop spinning and stamp the time
+    setTimeout(() => {
+      btn.classList.remove('spinning');
+      btn.disabled = false;
+      stampRefreshDate(null);  // stamp right now
+
+      bannerText.innerHTML =
+        '✅ <strong>Timestamp updated.</strong> ' +
+        'Run Claude Code to fetch new Slack posts and push to GitHub Pages for a full content refresh.';
+    }, 3000);
+  }
+
+  // Init
+  filterCards();
+</script>
+
+</body>
+</html>
