@@ -286,6 +286,16 @@ def update_refresh_timestamp():
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
+    # Gracefully skip if secrets not configured
+    if not os.environ.get("SLACK_BOT_TOKEN"):
+        print("⚠️  SLACK_BOT_TOKEN not set — skipping Slack fetch, stamping timestamp only.")
+        update_refresh_timestamp()
+        return
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print("⚠️  ANTHROPIC_API_KEY not set — skipping card generation, stamping timestamp only.")
+        update_refresh_timestamp()
+        return
+
     print("🔄  Fetching Slack channel messages…")
     processed = load_processed()
 
